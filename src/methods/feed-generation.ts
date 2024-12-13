@@ -15,7 +15,7 @@ export default function (server: Server, ctx: AppContext) {
       !algo
     ) {
       throw new InvalidRequestError(
-        'Unsupported algorithm',
+        `Unsupported algorithm. feedUri.hostname: ${feedUri.hostname}; ctx.cfg.publisherDid: ${ctx.cfg.publisherDid}; feedUri.collection: ${feedUri.collection}; algo: ${algo}`,
         'UnsupportedAlgorithm',
       )
     }
