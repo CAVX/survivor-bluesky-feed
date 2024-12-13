@@ -13,8 +13,8 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
     .orderBy('cid', 'desc')
     .limit(params.limit)
 
-  //https://bsky.app/profile/daryllmarie.bsky.social/post/3k3w2pixak42o
-  const pinnedPostUri = 'at://did:plc:fpeawo3ch4ypy66kxj57s2w4/app.bsky.feed.post/3lcjpzrcj3s2r';
+  //Pin an explanation post
+  const pinnedPostUri = 'at://did:plc:fpeawo3ch4ypy66kxj57s2w4/app.bsky.feed.post/3ld7il5nzik2r';
 
   if (params.cursor) {
     const timeStr = new Date(parseInt(params.cursor, 10)).toISOString()
