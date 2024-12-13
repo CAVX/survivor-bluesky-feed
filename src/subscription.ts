@@ -17,8 +17,8 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         const text = create.record.text.toLowerCase()
 
         // Match posts containing "#survivor" followed by optional digits (e.g., #survivor, #survivor7, #survivorcbs)
-        const includeHashtagsRegex = /#survivor(\d*|cbs)?/;
-        const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#abortion|#csa|#sa|#cptsd|#iptv/;
+        const includeHashtagsRegex = /#survivor(\d*|cbs)?/i;
+        const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivors|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#abortion|#csa|#sa|#cptsd|#iptv/i;
 
         // Only include posts that have #survivor followed by optional numbers or 'cbs', and do not contain excluded hashtags
         return includeHashtagsRegex.test(text) && !excludeHashtagsRegex.test(text)
