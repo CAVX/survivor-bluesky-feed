@@ -1,0 +1,15 @@
+[Unit]
+Description=Survivor feed for Bluesky
+
+[Service]
+ExecStart=/srv/survivor-bluesky-feed/dist/index.js
+Restart=always
+User=nobody
+# Note Debian/Ubuntu uses 'nogroup', RHEL/Fedora uses 'nobody'
+Group=nogroup
+Environment=PATH=/usr/bin:/usr/local/bin
+Environment=NODE_ENV=production
+WorkingDirectory=/srv/survivor-bluesky-feed/dist
+
+[Install]
+WantedBy=multi-user.target

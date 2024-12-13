@@ -9,7 +9,7 @@
     "publishFeed": "ts-node scripts/publishFeedGen.ts",
     "unpublishFeed": "ts-node scripts/unpublishFeedGen.ts",
     "start": "ts-node src/index.ts",
-    "build": "tsc && sed '1 i\\#\\!\/usr\/bin\/env node' dist/index.js > dist/index2.js && mv dist/index2.js dist/index.js"
+    "build": "tsc && cp .env dist/"
   },
   "dependencies": {
     "@atproto/api": "^0.6.20",
