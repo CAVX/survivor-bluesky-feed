@@ -1,45 +1,23 @@
-import {
-  OutputSchema as RepoEvent,
-  isCommit,
-} from './lexicon/types/com/atproto/sync/subscribeRepos'
-import { FirehoseSubscriptionBase, getOpsByType } from './util/subscription'
+import { TimerHandler, FeedOperationsByType, FeedCreateEvent } from './util/timer'
 import { HandleResolver } from '@atproto/identity';
+import { Database } from './db'
 import fs from 'fs/promises';
 import axios from 'axios';
 
-export class FirehoseSubscription extends FirehoseSubscriptionBase {
+export class FeedHandler implements TimerHandler {
   private lastFileCheck: Record<string, number> = {};
   private readonly fileCheckInterval = 60 * 1000; // 1 minute
+  private db : Database;
 
-  filterPost(postText) {
-    // Match posts containing "#survivor" and exclude outlier hashtags
-    const text = postText.toLowerCase()
-
-    // Match posts containing "#survivor" followed by optional digits (e.g., #survivor, #survivor7, #survivorcbs)
-    const includeHashtagsRegex = /#survivor(\d*|cbs)?/i;
-    const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivors|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#abortion|#csa|#sa|#cptsd|#iptv/i;
-
-    // Only include posts that have #survivor followed by optional numbers or 'cbs', and do not contain excluded hashtags
-    if (includeHashtagsRegex.test(text)) {
-      if (excludeHashtagsRegex.test(text)) {
-        console.log(`Post matched include regex but not exclude regex: ${text}`);
-        return false;
-      }
-      return true;
-    }
-    return false;
+  async Initialize(db: Database): Promise<void> {
+    this.db = db;
   }
   
-  async handleEvent(evt: RepoEvent) {
-    if (!isCommit(evt)) return
-
-    const ops = await getOpsByType(evt)
-
+  async handleEvent(ops: FeedOperationsByType) {
     const postsToDelete = ops.posts.deletes.map((del) => del.uri)
     const postsToCreate = ops.posts.creates
-      .filter((create) => { return this.filterPost(create.record.text) })
+      .filter((create) => { return this.filterPost(create.text) })
       .map((create) => {
-        // map Survivor-related posts to a db row
         return {
           uri: create.uri,
           cid: create.cid,
@@ -60,8 +38,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
       insertUris.push(...await this.processFile('insertPosts.txt'));
       const insertPosts = await this.fetchPosts(insertUris);
       postsToCreate.push(...insertPosts
-        .filter((thread) => { return thread.post.uri && this.filterPost(thread.text) })
-        .map((thread) => (thread.post)));
+        .filter((post) => { return post.uri && this.filterPost(post.text) }));
     }
 
     if (postsToDelete.length > 0) {
@@ -77,6 +54,26 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
         .onConflict((oc) => oc.doNothing())
         .execute()
     }
+  }
+  
+  filterPost(postText) {
+    // Match posts containing "#survivor" and exclude outlier hashtags
+    const text = postText.toLowerCase()
+    
+    // Match posts containing "#survivor" followed by optional digits (e.g., #survivor, #survivor7, #survivorcbs)
+    const includeHashtagsRegex = /#survivor(\d*|cbs)?/i;
+    const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivors|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#abortion|#csa|#sa|#cptsd|#iptv/i;
+
+    // Only include posts that have #survivor followed by optional numbers or 'cbs', and do not contain excluded hashtags
+    if (includeHashtagsRegex.test(text)) {
+      if (excludeHashtagsRegex.test(text)) {
+        console.log(`Post matched include RegEx, but also matched exclude RegEx: ${text}`);
+        return false;
+      }
+      console.log(text);
+      return true;
+    }
+    return false;
   }
   
   async processFile(filename: string): Promise<string[]> {
@@ -119,7 +116,7 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
     return `at://${did}/app.bsky.feed.post/${postId}`;
   }
 
-  async fetchPosts(uris: string[]): Promise<({ text: any; post: { uri: string; cid: string; indexedAt: string; }; })[]> {
+  async fetchPosts(uris: string[]): Promise<FeedCreateEvent[]> {
     try {
       const responses = await Promise.all(
         uris.map(async (uri) => {
@@ -132,15 +129,13 @@ export class FirehoseSubscription extends FirehoseSubscriptionBase {
             
             return {
               text: response.data.thread.post.record.text,
-              post: {
-                uri,
-                cid: response.data.thread.post.cid,
-                indexedAt: response.data.thread.post.indexedAt
-              }
+              uri,
+              cid: response.data.thread.post.cid,
+              indexedAt: response.data.thread.post.indexedAt
             }
           } catch (err) {
             console.error(`Error fetching CID and message for URI: ${uri}`, err);
-            return {text: '', post: { uri: '', cid: '', indexedAt: ''}};
+            return {text: '', uri: '', cid: '', indexedAt: ''};
           }
         })
       );

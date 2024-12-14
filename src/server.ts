@@ -6,7 +6,10 @@ import { createServer } from './lexicon'
 import feedGeneration from './methods/feed-generation'
 import describeGenerator from './methods/describe-generator'
 import { createDb, Database, migrateToLatest } from './db'
-import { FirehoseSubscription } from './subscription'
+import { AtprotoTimerBase } from './util/timer'
+import { FirehoseSubscription } from './util/firehose'
+import { JetstreamFirehoseSubscription } from './util/jetstream'
+import { FeedHandler } from './handler'
 import { AppContext, Config } from './config'
 import wellKnown from './well-known'
 
@@ -14,13 +17,13 @@ export class FeedGenerator {
   public app: express.Application
   public server?: http.Server
   public db: Database
-  public firehose: FirehoseSubscription
+  public firehose : AtprotoTimerBase
   public cfg: Config
 
   constructor(
     app: express.Application,
     db: Database,
-    firehose: FirehoseSubscription,
+    firehose: AtprotoTimerBase,
     cfg: Config,
   ) {
     this.app = app
@@ -32,7 +35,9 @@ export class FeedGenerator {
   static create(cfg: Config) {
     const app = express()
     const db = createDb(cfg.sqliteLocation)
-    const firehose = new FirehoseSubscription(db, cfg.subscriptionEndpoint)
+    const firehose : AtprotoTimerBase = cfg.subscriptionEndpoint.includes("jetstream")
+      ? new JetstreamFirehoseSubscription(db, cfg.subscriptionEndpoint, "app.bsky.feed.post", new FeedHandler())
+      : new FirehoseSubscription(db, cfg.subscriptionEndpoint, new FeedHandler());
 
     const didCache = new MemoryCache()
     const didResolver = new DidResolver({
