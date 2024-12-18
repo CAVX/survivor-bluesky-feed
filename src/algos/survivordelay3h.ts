@@ -14,7 +14,7 @@ export const handler = async (ctx: AppContext, params: QueryParams) => {
     .limit(params.limit)
 
   //Pin an explanation post
-  const pinnedPostUri = 'at://did:plc:fpeawo3ch4ypy66kxj57s2w4/app.bsky.feed.post/3ldbtn44bzk23';
+  const pinnedPostUri = 'at://did:plc:fpeawo3ch4ypy66kxj57s2w4/app.bsky.feed.post/3ldlyyc55ec2h';
 
   if (params.cursor) {
     const timeStr = new Date(parseInt(params.cursor, 10)).toISOString()
