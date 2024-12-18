@@ -5,12 +5,14 @@ import {
 } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import * as survivor from './survivor'
 import * as survivordelay from './survivordelay'
+import * as survivordelay3h from './survivordelay3h'
 
 type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
 
 const algos: Record<string, AlgoHandler> = {
   [survivor.shortname]: survivor.handler,
   [survivordelay.shortname]: survivordelay.handler,
+  [survivordelay3h.shortname]: survivordelay3h.handler
 }
 
 export default algos

@@ -2,13 +2,13 @@ import { QueryParams } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import { AppContext } from '../config'
 
 // max 15 chars
-export const shortname = 'survivordelay'
+export const shortname = 'survivordelay3h'
 
 export const handler = async (ctx: AppContext, params: QueryParams) => {
   let builder = ctx.db
     .selectFrom('post')
     .selectAll()
-    .where('post.indexedAt', '<', new Date(Date.now() - 3600 * 1000).toISOString()) // Ensure posts are at least an hour old
+    .where('post.indexedAt', '<', new Date(Date.now() - 3600 * 3 * 1000).toISOString()) // Ensure posts are at least an hour old
     .orderBy('indexedAt', 'desc')
     .orderBy('cid', 'desc')
     .limit(params.limit)
