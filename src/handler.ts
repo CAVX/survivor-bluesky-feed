@@ -62,7 +62,7 @@ export class FeedHandler implements TimerHandler {
     
     // Match posts containing "#survivor" followed by optional digits (e.g., #survivor, #survivor7, #survivorcbs)
     const includeHashtagsRegex = /#survivor(\d*|cbs)?/i;
-    const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivors|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#abortion|#csa|#sa|#cptsd|#iptv/i;
+    const excludeHashtagsRegex = /#survivorseries|#survivorgameplay|#deadbydaylight|#survivors|#survivorslike|#rainworld|#survivorlike|#survivorsguilt|#survivorguilt|#csasurvivor|#survivorsempowered|#mentalhealth|#excult|#traffickingsurvivor|#survivorcoach|#survivormusic|#abortion|#csa|#sa|#cptsd|#iptv/i;
 
     // Only include posts that have #survivor followed by optional numbers or 'cbs', and do not contain excluded hashtags
     if (includeHashtagsRegex.test(text)) {
