@@ -12,6 +12,7 @@ type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
 const algos: Record<string, AlgoHandler> = {
   [survivor.shortname]: survivor.handler,
   [survivordelay.shortname]: survivordelay.handler,
+  [survivordelay2h.shortname]: survivordelay2h.handler,
   [survivordelay3h.shortname]: survivordelay3h.handler
 }
 
