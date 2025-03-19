@@ -5,6 +5,7 @@ import {
 } from '../lexicon/types/app/bsky/feed/getFeedSkeleton'
 import * as survivor from './survivor'
 import * as survivordelay from './survivordelay'
+import * as survivordelay2h from './survivordelay2h'
 import * as survivordelay3h from './survivordelay3h'
 
 type AlgoHandler = (ctx: AppContext, params: QueryParams) => Promise<AlgoOutput>
